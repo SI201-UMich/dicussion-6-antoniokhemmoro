@@ -54,19 +54,20 @@ class PollReader():
         and each value in a CSV is seperated by a comma.
         """
 
-        # iterate through each row of the data
-        for i in self.raw_data[1:]:
+        for row in self.raw_data[1:]:
+            separated = row.strip().split(',')
 
-            # split up the row by column
-            separated = i.split(',')
+            sample_parts = separated[2].split()
+            sample_num = int(sample_parts[0])
+            sample_type = sample_parts[1]
 
-            # map each part of the row to the correct column
             self.data_dict['month'].append(separated[0])
             self.data_dict['date'].append(int(separated[1]))
-            self.data_dict['sample'].append(int(separated[2]))
-            self.data_dict['sample type'].append(separated[3])
-            self.data_dict['Harris result'].append(float(separated[4]))
-            self.data_dict['Trump result'].append(float(separated[5]))
+            self.data_dict['sample'].append(sample_num)
+            self.data_dict['sample type'].append(sample_type)
+            self.data_dict['Harris result'].append(float(separated[3]))
+            self.data_dict['Trump result'].append(float(separated[4]))
+
 
 
     def highest_polling_candidate(self):
@@ -121,7 +122,13 @@ class PollReader():
             tuple: A tuple containing the net change for Harris and Trump, in that order.
                    Positive values indicate an increase, negative values indicate a decrease.
         """
-        pass
+        harris = self.data_dict['Harris result']
+        trump = self.data_dict['Trump result']
+
+        harris_change = (sum(harris[:30]) / 30) - (sum(harris[-30:]) / 30)
+        trump_change = (sum(trump[:30]) / 30) - (sum(trump[-30:]) / 30)
+        return (harris_change, trump_change)
+
 
 
 class TestPollReader(unittest.TestCase):
